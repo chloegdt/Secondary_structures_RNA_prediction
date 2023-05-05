@@ -1,2 +1,2 @@
-# Program_RNA-Structure_Python
-Projet code 
+# Secondary_structures_RNA_prediction
+Projet fin de licence
