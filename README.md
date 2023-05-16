@@ -30,9 +30,14 @@ It is capable of predicting the following structures :
 
 ![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/aqua.png)
 ## :computer: How to use the program
-The following command lines must be run in a terminal by executing the file `algo.py`.
+The following command lines must be run in a terminal by executing the file [`algo.py`](https://github.com/Nabil-hamoudi/Program_RNA-Structure_Python/blob/main/algo.py).
+
+```
+algo.py [-h] [-i [SEQUENCE] | -f [FASTA_FILE]] [-s [FILE_PATH]] [-t] [-g [DIRECTORY_PATH]]
+```
 
 > Note: The program can take several minutes or even several hours to run.
+
 > Note: All flags can be used together except -i and -f.
 
 
@@ -62,10 +67,10 @@ To do this, use the flag: **-f** or **--file_input**.
 
 Two options are available:
 
-#### Enter the path leading to the fasta file
+→ Enter the path leading to the fasta file
 
 ```sh
-python3 algo.py path/file
+python3 algo.py -f path/file
 ```
 where *path* is the path leading to the fasta *file*.
 
@@ -76,7 +81,7 @@ python3 algo.py −f C:\path\to\file.fasta
 python3 algo.py --file_input relative/path/to/file.fasta
 
 ```
-#### Do not write anything after the flag, in this case the file explorer will open and you can directly select the file to open.
+→ Do not write anything after the flag, in this case the file explorer will open and you can directly select the file to open.
 Examples : 
 ```sh
 python3 algo.py -f
@@ -91,7 +96,7 @@ If you want to save the results, use the flag **-s** or **--save**.
 
 Then 2 options are available:
 
-#### Enter the path to choose where to save the file.
+→ Enter the path to choose where to save the file.
 ```sh
 python3 algo.py -f -s path/file.txt
 ```
@@ -102,7 +107,7 @@ Examples :
 python3 algo.py −f C:\path\to\file.fa -s C:\path\to\result.txt
 python3 algo.py -f -s relative/path/to/result.txt
 ```
-#### Do not enter anything, in this case a window will open to invite you to select the location of the backup and the name of the file. 
+→ Do not enter anything, in this case a window will open to invite you to select the location of the backup and the name of the file. 
 Examples : 
 ```sh
 python3 algo.py -f -s
@@ -116,7 +121,7 @@ Pour générer et enregistrer un graphe représentant la structure secondaire de
 
 Then 2 options are available:
 
-#### Enter the path to choose where to save the file.
+→ Enter the path to choose where to save the file.
 
 ```sh
 python3 algo.py -f -g path/directory
@@ -126,10 +131,10 @@ where *path* is the path leading to the *directory* which will contains the grap
 Examples : 
 ```sh
 python3 algo.py -f -g C:\path\to\directory
-python3 algo.py path/to/directory
+python3 algo.py -g path/to/directory
 ```
 
-#### Do not enter anything, in this case a window will open to invite you to select the location of the backup and the name of the file. 
+→ Do not enter anything, in this case a window will open to invite you to select the location of the backup and the name of the file. 
 Examples : 
 ```sh
 python3 algo.py -f -g

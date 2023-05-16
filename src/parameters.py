@@ -1,5 +1,92 @@
-# constants give the energy according to the size of the structure
+# https://rna.urmc.rochester.edu/NNDB/turner04/stack.txt
+TEMP = 0.4
 
+STACKING_AU = [
+    [TEMP, TEMP, TEMP, -0.9],
+    [TEMP, TEMP, -2.2, TEMP],
+    [TEMP, -2.1, TEMP, -0.6],
+    [-1.1, TEMP, -1.4, TEMP]
+]
+
+STACKING_CG = [
+    [TEMP, TEMP, TEMP, -2.1],
+    [TEMP, TEMP, -3.3, TEMP],
+    [TEMP, -2.4, TEMP, -1.4],
+    [-2.1, TEMP, -2.1, TEMP]
+]
+
+STACKING_GC = [
+    [TEMP, TEMP, TEMP, -2.4],
+    [TEMP, TEMP, -3.4, TEMP],
+    [TEMP, -3.3, TEMP, -1.5],
+    [-2.2, TEMP, -2.5, TEMP]
+]
+
+STACKING_UA = [
+    [TEMP, TEMP, TEMP, -1.3],
+    [TEMP, TEMP, -2.4, TEMP],
+    [TEMP, -2.1, TEMP, -1.0],
+    [-0.9, TEMP, -1.3, TEMP]
+]
+
+STACKING_GU = [
+    [TEMP, TEMP, TEMP, -1.3],
+    [TEMP, TEMP, -2.5, TEMP],
+    [TEMP, -2.1, TEMP, -0.5],
+    [-1.4, TEMP, +1.3, TEMP]
+]
+
+STACKING_UG = [
+    [TEMP, TEMP, TEMP, -1.0],
+    [TEMP, TEMP, -1.5, TEMP],
+    [TEMP, -1.4, TEMP, +0.3],
+    [-0.6, TEMP, -0.5, TEMP]
+]
+
+# https://rna.urmc.rochester.edu/NNDB/turner04/tstack.txt
+TERMINAL_STACKING_AU = [
+    [-0.8, -1.0, -0.8, -1.0],
+    [-0.6, -0.7, -0.6, -0.7],
+    [-0.8, -1.0, -0.8, -1.0],
+    [-0.6, -0.8, -0.6, -0.8]
+]
+
+TERMINAL_STACKING_CG = [
+    [-1.5, -1.5, -1.4, -1.5],
+    [-1.0, -1.1, -1.0, -0.8],
+    [-1.4, -1.5, -1.6, -1.5],
+    [-1.0, -1.4, -1.0, -1.2]
+]
+
+TERMINAL_STACKING_GC = [
+    [-1.1, -1.5, -1.3, -1.5],
+    [-1.1, -0.7, -1.1, -0.5],
+    [-1.6, -1.5, -1.4, -1.5],
+    [-1.1, -1.0, -1.1, -0.7]
+]
+
+TERMINAL_STACKING_UA = [
+    [-1.0, -0.8, -1.1, -0.8],
+    [-0.7, -0.6, -0.7, -0.5],
+    [-1.1, -0.8, -1.2, -0.8],
+    [-0.7, -0.6, -0.7, -0.5]
+]
+
+TERMINAL_STACKING_GU = [
+    [-0.3, -1.0, -0.8, -1.0],
+    [-0.6, -0.7, -0.6, -0.7],
+    [-0.6, -1.0, -0.8, -1.0],
+    [-0.6, -0.8, -0.6, -0.6]
+]
+
+TERMINAL_STACKING_UG = [
+    [-1.0, -0.8, -1.1, -0.8],
+    [-0.7, -0.6, -0.7, -0.5],
+    [-0.5, -0.8, -0.8, -0.8],
+    [-0.7, -0.6, -0.7, -0.5]
+]
+
+# constants give the energy according to the size of the structure
 harpin_loop_energy = {
         3 : 7.4,
         4 : 5.9,
@@ -114,9 +201,9 @@ def EIS1(i, j, sequence):
 
     # return the energy accoring to the size of the hairpin
     if delta_j_i > 30:
-        return coaxial_stacking(i, j, i+1, j-1, sequence) + 8.9
+        return terminal_stacking(i, j, i+1, j-1, sequence) + 8.9
     elif delta_j_i > 2:
-        return coaxial_stacking(i, j, i+1, j-1, sequence) + harpin_loop_energy[delta_j_i]
+        return terminal_stacking(i, j, i+1, j-1, sequence) + harpin_loop_energy[delta_j_i]
     else:
         return float("inf")
 
@@ -156,13 +243,13 @@ def EIS2(i, j, k, l, sequence):
 
     # stem
     if (delta_k_i == 0) and (delta_j_l == 0):
-        return coaxial_stacking(i, j, k, l, sequence)
+        return stacking(i, j, k, l, sequence)
 
 
     # bulge
     if (delta_k_i == 1) or (delta_j_l == 1):
         # bulge size = 1
-        return coaxial_stacking(i, j, k, l, sequence) + 3.3
+        return stacking(i, j, k, l, sequence) + 3.3
 
     if (delta_k_i > 0) and (delta_j_l == 0):
         # the bulge is between k  and i and its size is delta_k_i
@@ -178,7 +265,10 @@ def EIS2(i, j, k, l, sequence):
     # internal loop
     if (delta_k_i > 0) and (delta_k_i > 0):
         if delta_k_i + delta_j_l > 30: return 8.5
-        else: return internal_loop_energy[delta_k_i + delta_j_l]
+        else:
+            return terminal_stacking(i, j, i+1, j-1, sequence) \
+                + terminal_stacking(k, l, k-1, l+1, sequence) \
+                + internal_loop_energy[delta_k_i + delta_j_l]
 
 
 def EIS2_wave(i, j, k, l, sequence):
@@ -193,15 +283,17 @@ def EIS2_wave(i, j, k, l, sequence):
     return EIS2(i, j, k, l, sequence) * 0.83
 
 
-def coaxial_stacking(i, j, k, l, sequence):
+def stacking(i, j, k, l, sequence):
     """
-    Compute and return the coaxial stacking score
+    Compute and return the stacking score
     Input:
         i, j, k, l: indices of the sequence
         sequence: string containing the sequence
     Output:
-        float of the energy of the coaxial stacking
+        float of the energy of the stacking
     """
+    letter2index = {'A': 0, 'C': 1, 'G': 2, 'U': 3}
+
     # out of range
     if i >= len(sequence): return float('inf')
     if j >= len(sequence): return float('inf')
@@ -213,57 +305,108 @@ def coaxial_stacking(i, j, k, l, sequence):
     j = sequence[j]
     k = sequence[k]
     l = sequence[l]
+
+    k = letter2index[k]
+    l = letter2index[l]
     
-    #############
-    # --> # --> #
-    # i k # l j #
-    # | | # | | #
-    # j l # k i #
-    # <-- # <-- #
-    #############
+    #######
+    # --> #
+    # i k #
+    # | | #
+    # j l #
+    # <-- #
+    #######
 
-    # table 2 from 'Improved free-energy parameters for predictions of RNA duplex stability'
-    if i == 'A' and j == 'U' and k == 'A' and l == 'U': return -0.9
-    if i == 'A' and j == 'U' and k == 'U' and l == 'A': return -0.9
-    if i == 'U' and j == 'A' and k == 'A' and l == 'U': return -1.1
-    if i == 'C' and j == 'G' and k == 'A' and l == 'U': return -1.8
-    if i == 'C' and j == 'G' and k == 'U' and l == 'A': return -1.7
-    if i == 'G' and j == 'C' and k == 'A' and l == 'U': return -2.3
-    if i == 'G' and j == 'C' and k == 'U' and l == 'A': return -2.1
-    if i == 'C' and j == 'G' and k == 'G' and l == 'C': return -2.0
-    if i == 'G' and j == 'C' and k == 'C' and l == 'G': return -3.4
-    if i == 'G' and j == 'C' and k == 'G' and l == 'C': return -2.9
+    # table 4 from 'Improved free-energy parameters for predictions of RNA duplex stability'
+    if i == 'G' and j == 'C':
+        return STACKING_GC[k][l]
 
-    # symmetry
-    if l == 'A' and k == 'U' and j == 'A' and i == 'U': return -0.9
-    if l == 'A' and k == 'U' and j == 'U' and i == 'A': return -0.9
-    if l == 'U' and k == 'A' and j == 'A' and i == 'U': return -1.1
-    if l == 'C' and k == 'G' and j == 'A' and i == 'U': return -1.8
-    if l == 'C' and k == 'G' and j == 'U' and i == 'A': return -1.7
-    if l == 'G' and k == 'C' and j == 'A' and i == 'U': return -2.3
-    if l == 'G' and k == 'C' and j == 'U' and i == 'A': return -2.1
-    if l == 'C' and k == 'G' and j == 'G' and i == 'C': return -2.0
-    if l == 'G' and k == 'C' and j == 'C' and i == 'G': return -3.4
-    if l == 'G' and k == 'C' and j == 'G' and i == 'C': return -2.9
+    if i == 'C' and j == 'G':
+        return STACKING_CG[k][l]
 
-    # mismatches G-U
-    if i == 'A' and j == 'U' and k == 'G' and l == 'U': return -0.5
-    if i == 'C' and j == 'G' and k == 'G' and l == 'U': return -1.5
-    if i == 'G' and j == 'C' and k == 'G' and l == 'U': return -1.3
-    if i == 'U' and j == 'A' and k == 'G' and l == 'U': return -0.7
-    if i == 'G' and j == 'U' and k == 'G' and l == 'U': return -0.5
-    if i == 'U' and j == 'G' and k == 'G' and l == 'U': return -0.6
+    if i == 'A' and j == 'U':
+        return STACKING_AU[k][l]
 
-    if i == 'A' and j == 'U' and k == 'U' and l == 'G': return -0.7
-    if i == 'C' and j == 'G' and k == 'U' and l == 'G': return -1.5
-    if i == 'G' and j == 'C' and k == 'U' and l == 'G': return -1.9
-    if i == 'U' and j == 'A' and k == 'U' and l == 'G': return -0.5
-    if i == 'G' and j == 'U' and k == 'U' and l == 'G': return -0.5
-    if i == 'U' and j == 'G' and k == 'U' and l == 'G': return -0.5
+    if i == 'U' and j == 'A':
+        return STACKING_UA[k][l]
+
+    if i == 'G' and j == 'U':
+        return STACKING_GU[k][l]
+
+    if i == 'U' and j == 'G':
+        return STACKING_UG[k][l]
 
     # default value
-    return -0.4
+    return float('inf')
 
+
+def terminal_stacking(i, j, k, l, sequence):
+    """
+    Compute and return the terminal stacking score
+    Input:
+        i, j, k, l: indices of the sequence
+        sequence: string containing the sequence
+    Output:
+        float of the energy of the terminal stacking
+    """
+    letter2index = {'A': 0, 'C': 1, 'G': 2, 'U': 3}
+
+    # out of range
+    if i >= len(sequence): return float('inf')
+    if j >= len(sequence): return float('inf')
+    if k >= len(sequence): return float('inf')
+    if l >= len(sequence): return float('inf')
+
+    # get nucleotide letter
+    i = sequence[i]
+    j = sequence[j]
+    k = sequence[k]
+    l = sequence[l]
+
+    k = letter2index[k]
+    l = letter2index[l]
+    
+    #######
+    # --> #
+    # i k #
+    # | | #
+    # j l #
+    # <-- #
+    #######
+
+    # table 4 from 'Improved free-energy parameters for predictions of RNA duplex stability'
+    if i == 'G' and j == 'C':
+        return TERMINAL_STACKING_GC[k][l]
+
+    if i == 'C' and j == 'G':
+        return TERMINAL_STACKING_CG[k][l]
+
+    if i == 'A' and j == 'U':
+        return TERMINAL_STACKING_AU[k][l]
+
+    if i == 'U' and j == 'A':
+        return TERMINAL_STACKING_UA[k][l]
+
+    if i == 'G' and j == 'U':
+        return TERMINAL_STACKING_GU[k][l]
+
+    if i == 'U' and j == 'G':
+        return TERMINAL_STACKING_UG[k][l]
+
+    # default value
+    return float('inf')
+
+
+def coaxial_stacking(i, j, k, l, sequence):
+    """
+    Compute and return the coaxial stacking score
+    Input:
+        i, j, k, l: indices of the sequence
+        sequence: string containing the sequence
+    Output:
+        float of the energy of the coaxial stacking
+    """
+    return stacking(i, j, k, l, sequence)
 
 
 def coaxial_stacking_wave(i, j, k, l, sequence):
